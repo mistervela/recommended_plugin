@@ -142,12 +142,13 @@ function shortcode_recommended_products_2549($atts, $content=""){
         
         
 
-        $output .=  "<a href='?add-to-cart=<?=$id?>' data-quantity=1';";
-        $output .=  "style='font-size:11px;background-color:#3a70ac;color:white;";
-        $output .=  "class='button product_type_simple add_to_cart_button ajax_add_to_cart button-primary' ";
-        $output .=  "data-product_sku='". $product->get_sku() . "'"; 
-        $output .=  "aria-label='Add ". $product->get_title() . "to your cart"; 
-        $output .=  "rel='nofollow'>Add to Cart</a>";
+        $output .=  '<a href="?add-to-cart='.$id.'" data-quantity="1" ';
+        $output .=  'style="font-size:11px;background-color:#3a70ac;color:white;" ';
+        $output .=  'class="button product_type_simple add_to_cart_button ajax_add_to_cart button-primary" ';
+        $output .=  'data-product_id="'. $id . '"'; 
+        $output .=  'data-product_sku="'. $product->get_sku() . '"'; 
+        $output .=  'aria-label="Add '. $product->get_title() . ' to your cart" '; 
+        $output .=  'rel="nofollow">Add to Cart</a>';
        
 
         
@@ -160,9 +161,10 @@ function shortcode_recommended_products_2549($atts, $content=""){
     return $output;
 }   
 
-
-add_shortcode('recommended', 'shortcode_recommended_products_2549');
-//add_action('init', 'register_my_shortcodes');
+function register_my_shortcodes() {
+    add_shortcode('recommended', 'shortcode_recommended_products_2549');
+}
+add_action('init', 'register_my_shortcodes');
 //add_shortcode('greeting', 'wpb_demo_shortcode');
 
 
