@@ -1,6 +1,6 @@
 <?php
 /*
-   Plugin Name: Recommended Products
+   Plugin Name: Recommended Products Manager
    Version: 1.0
    Author: JC Vela
    Description: Display a list of recommended products.
@@ -10,6 +10,7 @@
 
 
 /****************************************** JQUERY ********************************************/
+
 
 function custom_scripts() {
 
@@ -69,7 +70,7 @@ function create_db_2459() {
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
     $sql = "CREATE TABLE $wpdb->products ( "
-    ."`id` int(11) NOT NULL, "
+    ."`id` int(11) NOT NULL autoincrement, "
     ."`item_id` int(11) NOT NULL, "
     .") ENGINE=InnoDB DEFAULT CHARSET=latin1";
 
@@ -77,7 +78,7 @@ function create_db_2459() {
 
     $wpdb->query($sql);
 
-    $sql = "ALTER TABLE $wpdb->products ADD PRIMARY KEY (`id`), ADD KEY `type` (`type`); ";
+    $sql = "ALTER TABLE $wpdb->products ADD PRIMARY KEY (`id`); ";
     $wpdb->query($sql);
 
 }
@@ -85,12 +86,24 @@ function create_db_2459() {
 /*******************************  FRONT END  **********************************/
 
 
+function test_plugin_setup_menu_2459(){
+	
+    $page_title = 'Recommended Products';
+    $menu_title = 'Recommended Products';
+    $capability = "manage_options";
+    $slug = 'recom_products';
+    $callback = 'plugin_settings_page_content_2459';
+    $icon = plugins_url( 'icons/icon.png?'.rand(111,9999), __FILE__ );
+    $position = 100;
 
-function register_my_shortcodes(){
-    add_shortcode('recommended', 'shortcode_recommended_products_2549');
+    add_menu_page( $page_title, $menu_title, $capability, $slug, $callback, $icon);
 }
 
-function shortcode_recommended_products_2549(){
+add_action('admin_menu', 'test_plugin_setup_menu_2459');
+
+
+
+function shortcode_recommended_products_2549($atts, $content=""){
 
     global $wpdb;
     $wpdb->products = "recom_product";
@@ -108,58 +121,54 @@ function shortcode_recommended_products_2549(){
 
     
     $result = new WP_Query( $products );
-    echo '<div style="width: 750px;">';
-    echo "<p><h1>Recommended Products</h1><p>";
-    echo '<div style="width: 680px;height: auto;min-height:250px;padding:10px;">';
+    
+    $output = '';
+    $output .=  '<div style="width: 750px;float:right;clear:both;!important;">';
+    $output .=  "<p><h1>Recommended Products</h1><p>";
+    $output .=  '<div style="width: 680px;height: auto;min-height:250px;padding:10px;">';
     
     foreach ( $products as $product ){
         
         
-        echo '<div style="border:1px solid #ddd;background-color:#e7eff2;width:110px;height:240px;padding:10px;margin:5px;float:left;">';
+        $output .=  '<div style="border:1px solid #ddd;background-color:#e7eff2;width:110px;height:240px;padding:10px;margin:5px;float:left;">';
         
-        echo '<div style="height:60px;"><span style="font-weight:bold;font-size:14px;line-height:12px;">'. wordwrap($product->get_title(), 10, "<br />\n") . '</span></div>';    // Product ID
+        $output .=  '<div style="height:60px;"><span style="font-weight:bold;font-size:14px;line-height:12px;">'. wordwrap($product->get_title(), 10, "<br />\n") . '</span></div>';    // Product ID
         
         //echo 'ID: '. $product->get_id() . '<br>';    // Product ID
-        echo $product->get_image(array( 100, 160 )); // Product title
-        echo '<b><div style="font-size:14px;text-align:center;width:90px;margin:0;padding-top:8px;padding-bottom:8px;">€ ' . $product->get_price(). '</div></b>';          // Product price
+        $output .=  $product->get_image(array( 100, 160 )); // Product title
+        $output .=  '<b><div style="font-size:14px;text-align:center;width:90px;margin:0;padding-top:8px;padding-bottom:8px;">€ ' . $product->get_price(). '</div></b>';          // Product price
         
         $id = $product->get_id();
         
-        ?>
+        
 
-        <a href="?add-to-cart=<?=$id?>" data-quantity=1
-        style="font-size:11px;background-color:#3a70ac;color:white;" 
-        class="button product_type_simple add_to_cart_button ajax_add_to_cart button-primary" 
-        data-product_sku="<?=$product->get_sku()?>" 
-        aria-label="Add <?=$product->get_title()?> to your cart" 
-        rel="nofollow">Add to Cart</a>
+        $output .=  "<a href='?add-to-cart=<?=$id?>' data-quantity=1';";
+        $output .=  "style='font-size:11px;background-color:#3a70ac;color:white;";
+        $output .=  "class='button product_type_simple add_to_cart_button ajax_add_to_cart button-primary' ";
+        $output .=  "data-product_sku='". $product->get_sku() . "'"; 
+        $output .=  "aria-label='Add ". $product->get_title() . "to your cart"; 
+        $output .=  "rel='nofollow'>Add to Cart</a>";
        
 
-        <?php
-        echo '</div>'; 
+        
+        $output .=  '</div>'; 
         
     }
-    echo '</div>'; 
-    echo '</div>'; 
+    $output .=  '</div>'; 
+    $output .=  '</div>'; 
+
+    return $output;
 }   
 
-add_action('init', 'register_my_shortcodes');
+
+add_shortcode('recommended', 'shortcode_recommended_products_2549');
+//add_action('init', 'register_my_shortcodes');
 //add_shortcode('greeting', 'wpb_demo_shortcode');
 
 
 /************************************   MAIN ADMIN PAGE  ***********************************/
 
-  function test_plugin_setup_menu_2459(){
-	
-    $slug = 'recom_products';
-    $callback = 'plugin_settings_page_content_2459';
-    $icon = plugins_url( 'icons/icon.png?'.rand(111,9999), __FILE__ );
-    $position = 100;
 
-    add_menu_page( $page_title, $menu_title, $capability, $slug, $callback, $icon);
-}
-
-add_action('admin_menu', 'test_plugin_setup_menu_2459');
 
 function plugin_settings_page_content_2459() {
 
@@ -197,8 +206,10 @@ function plugin_settings_page_content_2459() {
 <?php settings_errors(); ?> 
         
 <div class="postbox-container">
-            <? //echo print_r($products) ?>
-            <?php 
+
+<? //echo print_r($products) ?>
+
+<?php 
 
 
     echo '<div style="overflow-y: scroll;overflow-x: hidden;width:580px;height:auto;float:left;">';
